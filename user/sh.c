@@ -102,6 +102,9 @@ runcmd(struct cmd *cmd)
     if(pipe(p) < 0)
       panic("pipe");
     if(fork1() == 0){
+      /* The `close(1);` function call is closing the file descriptor for standard output (stdout). In
+      Unix-like operating systems, file descriptors 0, 1, and 2 are reserved for standard input
+      (stdin), standard output (stdout), and standard error (stderr) respectively. */
       close(1);
       dup(p[1]);
       close(p[0]);
