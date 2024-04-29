@@ -106,6 +106,8 @@ runcmd(struct cmd *cmd)
       Unix-like operating systems, file descriptors 0, 1, and 2 are reserved for standard input
       (stdin), standard output (stdout), and standard error (stderr) respectively. */
       close(1);
+      /* The line `dup(p[1]);` is duplicating the file descriptor `p[1]` onto the lowest-numbered
+      unused file descriptor. */
       dup(p[1]);
       close(p[0]);
       close(p[1]);
