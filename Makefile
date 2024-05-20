@@ -181,6 +181,7 @@ UPROGS=\
 	$U/_duptest\
 	$U/_echo\
 	$U/_exectest\
+	$U/_find\
 	$U/_forktest\
 	$U/_forktest2\
 	$U/_grep\
@@ -198,6 +199,7 @@ UPROGS=\
 	$U/_usertests\
 	$U/_grind\
 	$U/_wc\
+	$U/_xargs\
 	$U/_zombie\
 
 
