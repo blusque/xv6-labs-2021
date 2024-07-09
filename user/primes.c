@@ -13,6 +13,12 @@ prime(int p)
   fprintf(1, "prime %d\n", p);
 }
 
+
+void
+show_pfd_info(int* pfd)
+{
+  fprintf(1, "pfd created: %d, %d\n", pfd[0], pfd[1]);
+}
 // int
 // neighbor(int p, int pos, int* list, int size)
 // {
@@ -63,14 +69,20 @@ create(int p, int* pfd)
 
   prime(p);
 
+  // Child Process
   if ((pid = fork()) == 0)
   {
     n = p;
 
-    pipe(new_pfd);
-
+    // close pfd[1] first because we don't use
+    // it in child process, and the fid resources
+    // are limited
     close(pfd[1]);
-    // close(new_pfd[0]);
+
+    pipe(new_pfd);
+    // show_pfd_info(new_pfd);
+
+    // close(pfd[1]);
 
     while (read(pfd[0], &i, sizeof(i)))
     {
@@ -92,6 +104,8 @@ create(int p, int* pfd)
     wait(0);
     exit(0);
   }
+
+  // Parent Process
   return pid;
 }
 
@@ -101,7 +115,10 @@ main(int argc, char** argv)
   int child = 0;
   int pfd[2] = { 0 };
 
+  // note that when we call pipe first to create a pipe and then call fork to create a child process,
+  // there are actually 4 ends of the pipe, 2 in the parent process and 2 duplicated to the child process.
   pipe(pfd);
+  // show_pfd_info(pfd);
 
   // printf("size of void*: %d\n", sizeof(void*));
   for (int i = 2; i < 36; i++)
@@ -109,6 +126,9 @@ main(int argc, char** argv)
     write(pfd[1], &i, sizeof(i));
     if (!child)
     {
+      // if I close pfd[0] here, the fid of pfd[0] in child process will be closed at the beginning,
+      // since the fids are duplicated from the parent process to the child process 
+      // close(pfd[0])
       child = create(i, pfd);
       close(pfd[0]);
     }
