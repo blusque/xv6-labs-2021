@@ -77,6 +77,7 @@ testmem() {
 
 void
 testcall() {
+  int t;
   struct sysinfo info;
   
   if (sysinfo(&info) < 0) {
@@ -84,8 +85,8 @@ testcall() {
     exit(1);
   }
 
-  if (sysinfo((struct sysinfo *) 0xeaeb0b5b00002f5e) !=  0xffffffffffffffff) {
-    printf("FAIL: sysinfo succeeded with bad argument\n");
+  if ((t = sysinfo((struct sysinfo *) 0xeaeb0b5b00002f5e)) !=  0xffffffffffffffff) {
+    printf("FAIL: sysinfo succeeded with bad argument\n, return value: %d\n", t);
     exit(1);
   }
 }

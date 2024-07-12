@@ -7,6 +7,7 @@ int
 main(int argc, char *argv[])
 {
   int i;
+  int t;
   char *nargv[MAXARG];
 
   if(argc < 3 || (argv[1][0] < '0' || argv[1][0] > '9')){
@@ -14,8 +15,8 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  if (trace(atoi(argv[1])) < 0) {
-    fprintf(2, "%s: trace failed\n", argv[0]);
+  if ((t = trace(atoi(argv[1]))) < 0) {
+    fprintf(2, "%s: trace failed, arg1: %d\n", argv[0], t);
     exit(1);
   }
   
