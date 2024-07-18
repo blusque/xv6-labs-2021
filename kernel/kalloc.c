@@ -86,23 +86,19 @@ kalloc(void)
 int
 collectsysfreemem(struct sysinfo *info)
 {
-  char *p;
+  struct run *r;
   uint64 count = 0;
 
-  p = (char*)(myproc()->sz);
-  // p = (char*)PGROUNDUP((uint64)p);
-  // printf("now p is: %d, phystop: %d\n", (uint64)p, TRAPFRAME);
-  // if ((uint64)p < KERNBASE)
-  // {
-  //   info->freemem = count;
-  //   return 0;
-  // }
-  for(; (uint64)p < 133140480 /*magic number, tested from failure*/; p += PGSIZE)
-  {
+  acquire(&kmem.lock);
+
+  r = kmem.freelist;
+  while (r) {
     count += PGSIZE;
+    r = r->next;
   }
   info->freemem = count;
-  // printf("total freemem: %d\n", count);
+
+  release(&kmem.lock);
 
   return 0;
 }
