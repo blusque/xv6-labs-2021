@@ -81,6 +81,44 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 start_va, start_pa;
+  int len;
+  uint64 kbitmask;
+  uint64 ubitmask;
+  pagetable_t pgtbl = myproc()->pagetable;
+  int flag = 0;
+
+  if (argaddr(0, &start_va) < 0)
+    return -1;
+  if (argint(1, &len) < 0)
+    return -1;
+  if (len > 8 * sizeof(uint64))
+    return -1;
+  if (argaddr(2, &ubitmask) < 0)
+    return -1;
+
+  memset((void*)&kbitmask, 0, sizeof(uint64));
+  // printf("kbitmask1: %p\n", kbitmask);
+
+  start_va = PGROUNDUP(start_va);
+  // start_pa = walkaddr(pgtbl, start_va);
+
+  for (int i = 0; i < len; i++){
+    start_pa = walkaddr(pgtbl, start_va);
+    for (char* p = (char*)start_pa; (uint64)p < start_pa + PGSIZE; p++) {
+      if (*(char*)p != 0){
+        flag++;
+        kbitmask |= 1 << (i + 1);
+      }
+    }
+    // printf("pa: %d\n", flag);
+    flag = 0;
+    start_va += PGSIZE;
+  }
+  // printf("kbitmask2: %p\n", kbitmask);
+  
+  copyout(pgtbl, ubitmask, (void*)&kbitmask, sizeof(uint64));
+
   return 0;
 }
 #endif

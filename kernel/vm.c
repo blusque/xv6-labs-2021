@@ -84,10 +84,12 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
     panic("walk");
 
   for(int level = 2; level > 0; level--) {
+    // PX(level, va) gets the 9-bits pte address
+    // by right shifting the va by (12 + 9 * level) bit
     pte_t *pte = &pagetable[PX(level, va)];
-    if(*pte & PTE_V) {
+    if(*pte & PTE_V) {  // get the pte if it already exists
       pagetable = (pagetable_t)PTE2PA(*pte);
-    } else {
+    } else {  // alloc the pte page if it didn't exist
       if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
         return 0;
       memset(pagetable, 0, PGSIZE);
@@ -431,4 +433,34 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   } else {
     return -1;
   }
+}
+
+int
+pgtblprint(pagetable_t pagetable, int level)
+{
+  // there are 2^9 = 512 PTEs in a page table.
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    if(pte & PTE_V){
+      // this PTE points to a lower-level page table.
+      uint64 child = PTE2PA(pte);
+      printf("..");
+      for (int j = 1; j <= level; j++){
+        printf(" ..");
+      }
+      printf("%d: pte %p pa %p\n", i, pte, child);
+
+      if ((pte & (PTE_R | PTE_W | PTE_X)) == 0){
+        pgtblprint((pagetable_t)child, level + 1);
+      }
+    }
+  }
+  return 0;
+}
+
+int
+vmprint(pagetable_t pagetable)
+{
+  printf("page table %p\n", pagetable);
+  return pgtblprint(pagetable, 0);
 }

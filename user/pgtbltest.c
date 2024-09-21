@@ -56,8 +56,10 @@ pgaccess_test()
   printf("pgaccess_test starting\n");
   testname = "pgaccess_test";
   buf = malloc(32 * PGSIZE);
+  memset(buf, 0, 32 * PGSIZE);
   if (pgaccess(buf, 32, &abits) < 0)
     err("pgaccess failed");
+  // printf("pgaccess_test argparser success!\n");
   buf[PGSIZE * 1] += 1;
   buf[PGSIZE * 2] += 1;
   buf[PGSIZE * 30] += 1;
